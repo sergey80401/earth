@@ -7,7 +7,7 @@ export const useMap = () => {
       container: "map",
       style: "https://tiles.stadiamaps.com/styles/alidade_smooth.json", // stylesheet location
       center: [73.365262, 54.990763], // starting position [lng, lat]
-      zoom: 18, // starting zoom
+      zoom: 10, // starting zoom
       pitch: 100,
     })
   );
