@@ -18,6 +18,8 @@ onMounted(() => {
     modelAltitude
   );
 
+  watch(position, ()=> addMarker([position.value?.longitude, position.value?.latitude], map))
+
   // transformation parameters to position, rotate and scale the 3D model onto the map
   const modelTransform = {
     translateX: modelAsMercatorCoordinate.x,
