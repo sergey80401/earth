@@ -9,6 +9,11 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+  "typeRoots": [
+    "../../node_modules",
+    "../../node_modules/@types",
+    "../definitions"
+  ]
   }
 }

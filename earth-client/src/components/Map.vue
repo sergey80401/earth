@@ -1,126 +1,51 @@
 <script setup lang="ts">
 import { ref, onMounted, unref, watch } from "vue";
 import * as THREE from "three";
-import { useMap, useMarker, useGeolocation } from "@/hooks";
-
+import { useMap, useMarker, useGeolocation, useObjects } from "@/hooks";
+import { LngLat } from "maplibre-gl";
+import {type MapObject} from "@/types"
 const { addMarker } = useMarker();
 const { position } = useGeolocation();
+const { addObjectOnMap } = useObjects()
+
+const a = ref("")
 
 onMounted(() => {
   const { map } = useMap();
 
-  const modelOrigin =[0, 0];
-  const modelAltitude = 0;
-  const modelRotate = [Math.PI / 2, 0, 0];
+  const geometry1 = new THREE.BoxGeometry(1, 1, 1);
+  const red = new THREE.MeshBasicMaterial({ color: "red" });
+  const cube1 = new THREE.Mesh(geometry1, red);
 
-  const modelAsMercatorCoordinate = maplibregl.MercatorCoordinate.fromLngLat(
-    modelOrigin,
-    modelAltitude
-  );
+  var obj1 = {mapObj: cube1, mapPositon: [73.3924742, 54.9640796]}
 
-  watch(position, ()=> addMarker([position.value?.longitude, position.value?.latitude], map))
+  cube1.position.set(100, 0, 100)
+  const geometry2 = new THREE.BoxGeometry(3, 3, 1);
+  const green = new THREE.MeshBasicMaterial({ color: "green" });
+  const cube2 = new THREE.Mesh(geometry2, green);
 
-  // transformation parameters to position, rotate and scale the 3D model onto the map
-  const modelTransform = {
-    translateX: modelAsMercatorCoordinate.x,
-    translateY: modelAsMercatorCoordinate.y,
-    translateZ: modelAsMercatorCoordinate.z,
-    rotateX: modelRotate[0],
-    rotateY: modelRotate[1],
-    rotateZ: modelRotate[2],
-    /* Since our 3D model is in real world meters, a scale transform needs to be
-     * applied since the CustomLayerInterface expects units in MercatorCoordinates.
-     */
-    scale: modelAsMercatorCoordinate.meterInMercatorCoordinateUnits(),
-  };
+  
+  var obj2 = {mapObj: cube2, mapPositon: [73.3924742, 54.9640796]}
 
-  const customLayer = {
-    id: "3d-model",
-    type: "custom",
-    renderingMode: "3d",
-// 10000, 200
-    onAdd(map, gl) {
-      this.camera = new THREE.Camera();
-      this.scene = new THREE.Scene();
+  addObjectOnMap(obj1, obj2)
+  // addObjectOnMap(obj2)
+  // addObjectOnMap(cube2)
 
-      const plane = new THREE.Mesh(
-        new THREE.PlaneGeometry(100, 100),
-        new THREE.MeshBasicMaterial({
-          opacity: 0.5,
-          color: "white",
-          side: THREE.DoubleSide,
-          transparent: true,
-        })
-      ).rotateX(-Math.PI / 2);
-      plane.receiveShadow = true;
+  // watch(position, () => addMarker([position.value?.longitude, position.value?.latitude], map))
 
-      const grid = new THREE.GridHelper(40000000, 100000, "red", "red");
 
-      const group = new THREE.Group();
-      group.add(plane, grid);
-
-      this.scene.add(group);
-
-      this.map = map;
-
-      // use the MapLibre GL JS map canvas for three.js
-      this.renderer = new THREE.WebGLRenderer({
-        canvas: map.getCanvas(),
-        context: gl,
-        antialias: true,
-      });
-
-      this.renderer.autoClear = false;
-    },
-
-    render(gl, matrix) {
-      const rotationX = new THREE.Matrix4().makeRotationAxis(
-        new THREE.Vector3(1, 0, 0),
-        modelTransform.rotateX
-      );
-      const rotationY = new THREE.Matrix4().makeRotationAxis(
-        new THREE.Vector3(0, 1, 0),
-        modelTransform.rotateY
-      );
-      const rotationZ = new THREE.Matrix4().makeRotationAxis(
-        new THREE.Vector3(0, 0, 1),
-        modelTransform.rotateZ
-      );
-
-      const m = new THREE.Matrix4().fromArray(matrix);
-      const l = new THREE.Matrix4()
-        .makeTranslation(
-          modelTransform.translateX,
-          modelTransform.translateY,
-          modelTransform.translateZ
-        )
-        .scale(
-          new THREE.Vector3(
-            modelTransform.scale,
-            -modelTransform.scale,
-            modelTransform.scale
-          )
-        )
-        .multiply(rotationX)
-        .multiply(rotationY)
-        .multiply(rotationZ);
-
-      this.camera.projectionMatrix = m.multiply(l);
-      this.renderer.resetState();
-      this.renderer.render(this.scene, this.camera);
-      // this.map.triggerRepaint();
-    },
-  };
-
-  map.value.on("style.load", () => {
-    map.value.addLayer(customLayer);
+  map.on('mousemove', (e) => {
+    a.value = `${JSON.stringify(e.point)} // ${JSON.stringify(e.lngLat.wrap())}`;
   });
+
+
+
 });
 </script>
 
 <template>
   <div id="map" style="width: 100%; height: 1100px"></div>
-  <div>[{{ position?.longitude }}, {{ position?.latitude }}]</div>
+  <div>{{ a }}</div>
 </template>
 
 <style scoped></style>
