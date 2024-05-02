@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useMap, useMarker } from "@/hooks";
-import myImage from "../assets/vados.png";
+import setMarker from '@/App.vue';
 
 const {addMarker} = useMarker() 
 
