@@ -15,7 +15,7 @@ dp.include_router(router)
 
 kb = InlineKeyboardBuilder()
 
-kb.row(InlineKeyboardButton(text="Run app", web_app=WebAppInfo(url="https://gitlab.gemsdev.ru/gems/geometa/-/pipelines")))
+kb.row(InlineKeyboardButton(text="Run app", web_app=WebAppInfo(url="https://10.5.1.152:5173/")))
 
 
 @router.message()

@@ -5,7 +5,7 @@ export const useMarker = () => {
   const addMarker = (lngLat: LngLatLike, map: any): Marker => {
     const marker = new Marker()
       .setLngLat(lngLat)
-      .addTo(map.value);
+      .addTo(map);
 
     return marker;
   };
